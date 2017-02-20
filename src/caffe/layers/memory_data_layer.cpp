@@ -16,10 +16,12 @@ void MemoryDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   height_ = this->layer_param_.memory_data_param().height();
   width_ = this->layer_param_.memory_data_param().width();
   size_ = channels_ * height_ * width_;
+  label_size_ = this->layer_param_.memory_data_param().label_size();
   CHECK_GT(batch_size_ * size_, 0) <<
       "batch_size, channels, height, and width must be specified and"
       " positive in memory_data_param";
-  vector<int> label_shape(1, batch_size_);
+  //vector<int> label_shape(1, batch_size_);
+  vector<int> label_shape(batch_size_, label_size_);  
   top[0]->Reshape(batch_size_, channels_, height_, width_);
   top[1]->Reshape(label_shape);
   added_data_.Reshape(batch_size_, channels_, height_, width_);
@@ -38,6 +40,8 @@ void MemoryDataLayer<Dtype>::AddDatumVector(const vector<Datum>& datum_vector) {
   CHECK_GT(num, 0) << "There is no datum to add.";
   CHECK_EQ(num % batch_size_, 0) <<
       "The added data must be a multiple of the batch size.";
+  CHECK_EQ(label_size_, datum_vector[0].label_size()) <<
+      "The label size for input and prototxt setting are not match.";
   added_data_.Reshape(num, channels_, height_, width_);
   added_label_.Reshape(num, 1, 1, 1);
   // Apply data transformations (mirror, scale, crop...)
@@ -45,7 +49,10 @@ void MemoryDataLayer<Dtype>::AddDatumVector(const vector<Datum>& datum_vector) {
   // Copy Labels
   Dtype* top_label = added_label_.mutable_cpu_data();
   for (int item_id = 0; item_id < num; ++item_id) {
-    top_label[item_id] = datum_vector[item_id].label();
+    //top_label[item_id] = datum_vector[item_id].label();
+  	for(int label_idx = 0; label_idx < label_size_; label_idx++){
+ 		top_label[item_id*label_size_+label_idx] = datum_vector[item_id].label(label_idx);
+	}  
   }
   // num_images == batch_size_
   Dtype* top_data = added_data_.mutable_cpu_data();
@@ -63,6 +70,8 @@ void MemoryDataLayer<Dtype>::AddMatVector(const vector<cv::Mat>& mat_vector,
   CHECK_GT(num, 0) << "There is no mat to add";
   CHECK_EQ(num % batch_size_, 0) <<
       "The added data must be a multiple of the batch size.";
+  CHECK_EQ(label_size_, labels.size()/num) <<
+      "The label size for input and prototxt setting are not match.";
   added_data_.Reshape(num, channels_, height_, width_);
   added_label_.Reshape(num, 1, 1, 1);
   // Apply data transformations (mirror, scale, crop...)
@@ -70,7 +79,10 @@ void MemoryDataLayer<Dtype>::AddMatVector(const vector<cv::Mat>& mat_vector,
   // Copy Labels
   Dtype* top_label = added_label_.mutable_cpu_data();
   for (int item_id = 0; item_id < num; ++item_id) {
-    top_label[item_id] = labels[item_id];
+    //top_label[item_id] = labels[item_id];
+  	for(int label_idx = 0; label_idx < label_size_; label_idx++){
+ 		top_label[item_id*label_size_+label_idx] = labels[item_id*label_size_+label_idx];
+	}  
   }
   // num_images == batch_size_
   Dtype* top_data = added_data_.mutable_cpu_data();

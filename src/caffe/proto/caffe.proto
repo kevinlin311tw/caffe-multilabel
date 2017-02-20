@@ -33,7 +33,8 @@ message Datum {
   optional int32 width = 3;
   // the actual image data, in bytes
   optional bytes data = 4;
-  optional int32 label = 5;
+  //optional int32 label = 5;
+  repeated int32 label = 5;
   // Optionally, the datum could also hold float data.
   repeated float float_data = 6;
   // If true data contains an encoded image that need to be decoded
@@ -800,6 +801,7 @@ message ImageDataParameter {
   // data.
   optional bool mirror = 6 [default = false];
   optional string root_folder = 12 [default = ""];
+  optional uint32 label_size = 13 [default = 1]; 
 }
 
 message InfogainLossParameter {
@@ -866,6 +868,7 @@ message MemoryDataParameter {
   optional uint32 channels = 2;
   optional uint32 height = 3;
   optional uint32 width = 4;
+  optional uint32 label_size = 5 [default = 1];
 }
 
 message MVNParameter {

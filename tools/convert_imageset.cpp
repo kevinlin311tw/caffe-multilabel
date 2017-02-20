@@ -14,6 +14,10 @@
 #include <utility>
 #include <vector>
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <iostream>
+
 #include "boost/scoped_ptr.hpp"
 #include "gflags/gflags.h"
 #include "glog/logging.h"
@@ -25,6 +29,7 @@
 #include "caffe/util/rng.hpp"
 
 using namespace caffe;  // NOLINT(build/namespaces)
+using namespace boost::algorithm;
 using std::pair;
 using boost::scoped_ptr;
 
@@ -72,14 +77,29 @@ int main(int argc, char** argv) {
   const string encode_type = FLAGS_encode_type;
 
   std::ifstream infile(argv[2]);
-  std::vector<std::pair<std::string, int> > lines;
+  //std::vector<std::pair<std::string, int> > lines;
+  std::vector<std::pair<std::string, std::vector<int> > > lines;
   std::string line;
   size_t pos;
+/*
   int label;
   while (std::getline(infile, line)) {
     pos = line.find_last_of(' ');
     label = atoi(line.substr(pos + 1).c_str());
     lines.push_back(std::make_pair(line.substr(0, pos), label));
+  }
+*/
+  while (std::getline(infile, line)) {
+  	std::vector<int> vec_label;
+    	std::vector<std::string> tokens;
+    	split(tokens, line, is_any_of(" "));
+	for(int i = 0; i < tokens.size(); i++){
+		if (i > 0){
+			vec_label.push_back(atoi(tokens[i].c_str()));
+		}
+	}
+    	pos = line.find_last_of(' ');
+    	lines.push_back(std::make_pair(line.substr(0, pos), vec_label));
   }
   if (FLAGS_shuffle) {
     // randomly shuffle data
