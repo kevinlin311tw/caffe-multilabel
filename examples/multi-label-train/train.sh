@@ -1,0 +1,1 @@
+../../build/tools/caffe train -solver  solver.prototxt -weights /home/titan/hashing/Caffe-DeepBinaryCode-master/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel -gpu 0 2>&1 | tee log.txt

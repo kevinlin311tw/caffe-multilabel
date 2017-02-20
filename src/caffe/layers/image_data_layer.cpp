@@ -7,6 +7,9 @@
 #include <utility>
 #include <vector>
 
+#include "caffe/layers/base_data_layer.hpp"
+#include "caffe/layer.hpp"
+
 #include "caffe/data_transformer.hpp"
 #include "caffe/layers/base_data_layer.hpp"
 #include "caffe/layers/image_data_layer.hpp"
@@ -96,20 +99,19 @@ void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
       << top[0]->channels() << "," << top[0]->height() << ","
       << top[0]->width();
   // label
-/*
+  /*
   vector<int> label_shape(1, batch_size);
   top[1]->Reshape(label_shape);
   for (int i = 0; i < this->prefetch_.size(); ++i) {
     this->prefetch_[i]->label_.Reshape(label_shape);
   }
-*/
+  */
   //multi label
-  vector<int> label_shape(batch_size,label_size);
-  top[1]->Reshape(label_shape);
-  for (int i = 0; i < this->prefetch_.size(); ++i) {
-    this->prefetch_[i]->label_.Reshape(label_shape);
-  }
-
+    //vector<int> label_shape(batch_size, label_size);
+    top[1]->Reshape(batch_size, label_size, 1, 1);
+    for (int i = 0; i < this->prefetch_.size(); ++i) {
+      this->prefetch_[i]->label_.Reshape(batch_size, label_size, 1, 1);
+    }
 
 }
 
