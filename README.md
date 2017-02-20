@@ -1,3 +1,45 @@
+# Caffe-multilabel
+
+Slight modification of the latest caffe (forked in Feb 2017), and extend the ImageData layer to multi-label inputs.
+
+## Quick example
+You could specify your network prototxt as:
+
+    name: "multi-class-alexnet"
+    layer {
+      name: "data"
+      type: "ImageData"
+      top: "data"
+      top: "label"
+      include {
+      phase: TRAIN
+      }
+     transform_param {
+      mirror: true
+      crop_size: 227
+      mean_file: "../../data/ilsvrc12/imagenet_mean.binaryproto"
+    }
+     image_data_param {
+      source: "file-list.txt"
+      batch_size: 10
+      new_height: 256
+      new_width: 256
+      label_size: 4 # specify the number of labels
+     }
+    }
+
+Then, the contend of `file-list.txt` are:
+
+    imgs1.jpg 1 1 -1 -1
+    imgs2.jpg 1 1 -1 -1
+    imgs3.jpg 1 1 -1 -1
+    imgs4.jpg 1 1 -1 0
+    imgs5.jpg 1 0 0 -1
+
+
+You could also find a toy example at `/examples/multi-label-train`. Note that you can indicate the label as "don't care" by setting label to `0`.
+ 
+
 # Caffe
 
 [![Build Status](https://travis-ci.org/BVLC/caffe.svg?branch=master)](https://travis-ci.org/BVLC/caffe)
@@ -35,4 +77,3 @@ Please cite Caffe in your publications if it helps your research:
       Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
       Year = {2014}
     }
-# caffe-multilabel
